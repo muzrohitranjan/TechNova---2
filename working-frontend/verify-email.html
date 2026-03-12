@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email - Tech Nova</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/pages.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .verify-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .verify-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .verify-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+        }
+        
+        .verify-icon i {
+            font-size: 36px;
+            color: white;
+        }
+        
+        .verify-icon.success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        .verify-icon.error {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        
+        .verify-card h1 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        
+        .verify-card p {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        .verify-status {
+            display: none;
+        }
+        
+        .verify-status.active {
+            display: block;
+        }
+        
+        .resend-link {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .resend-link a {
+            color: #667eea;
+            font-weight: 500;
+        }
+        
+        .resend-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .btn-home {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            text-decoration: none;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="verify-container">
+        <div class="verify-card">
+            <!-- Loading State -->
+            <div id="loadingState" class="verify-status active">
+                <div class="loading-spinner"></div>
+                <h1>Verifying Email</h1>
+                <p>Please wait while we verify your email address...</p>
+            </div>
+            
+            <!-- Success State -->
+            <div id="successState" class="verify-status">
+                <div class="verify-icon success">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h1>Email Verified!</h1>
+                <p>Your email has been successfully verified. You can now log in to your account and start exploring recipes.</p>
+                <a href="index.html" class="btn-home">Go to Homepage</a>
+            </div>
+            
+            <!-- Error State -->
+            <div id="errorState" class="verify-status">
+                <div class="verify-icon error">
+                    <i class="fas fa-times"></i>
+                </div>
+                <h1>Verification Failed</h1>
+                <p id="errorMessage">The verification link is invalid or has expired. Please request a new verification link.</p>
+                <div class="resend-link">
+                    <p>Didn't receive the email? <a href="#" onclick="showResendForm()">Resend verification email</a></p>
+                </div>
+            </div>
+            
+            <!-- Resend Form -->
+            <div id="resendState" class="verify-status">
+                <div class="verify-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <h1>Resend Verification</h1>
+                <p>Enter your email address to receive a new verification link.</p>
+                <form id="resendForm" onsubmit="resendVerification(event)">
+                    <input type="email" id="resendEmail" placeholder="Your email address" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 15px;">
+                    <button type="submit" class="btn-home">Resend Link</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE_URL = 'http://localhost:8000';
+        
+        // Get token and user_id from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        const userId = urlParams.get('user_id');
+        
+        // Verify on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            if (token && userId) {
+                verifyEmail();
+            } else {
+                showError('Invalid verification link. Please check your email for the correct link.');
+            }
+        });
+        
+        async function verifyEmail() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/verify-email`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        token: token,
+                        user_id: userId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showSuccess();
+                } else {
+                    showError(data.detail || 'Verification failed. The link may have expired.');
+                }
+            } catch (error) {
+                console.error('Verification error:', error);
+                showError('Network error. Please try again later.');
+            }
+        }
+        
+        function showLoading() {
+            document.querySelectorAll('.verify-status').forEach(el => el.classList.remove('active'));
+            document.getElementById('loadingState').classList.add('active');
+        }
+        
+        function showSuccess() {
+            document.querySelectorAll('.verify-status').forEach(el => el.classList.remove('active'));
+            document.getElementById('successState').classList.add('active');
+        }
+        
+        function showError(message) {
+            document.querySelectorAll('.verify-status').forEach(el => el.classList.remove('active'));
+            document.getElementById('errorState').classList.add('active');
+            document.getElementById('errorMessage').textContent = message;
+        }
+        
+        function showResendForm() {
+            document.querySelectorAll('.verify-status').forEach(el => el.classList.remove('active'));
+            document.getElementById('resendState').classList.add('active');
+        }
+        
+        async function resendVerification(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('resendEmail').value;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/resend-verification`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: email })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Verification email sent! Please check your inbox.');
+                    showLoading();
+                } else {
+                    alert(data.detail || 'Failed to resend verification email.');
+                }
+            } catch (error) {
+                console.error('Resend error:', error);
+                alert('Network error. Please try again later.');
+            }
+        }
+    </script>
+</body>
+</html>
+

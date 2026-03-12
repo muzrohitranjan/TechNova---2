@@ -9,7 +9,11 @@ from app.schemas.user_schema import (
     UserUpdate, 
     UserProfileResponse,
     Token,
-    RefreshTokenRequest
+    RefreshTokenRequest,
+    VerifyEmailRequest,
+    ResendVerificationRequest,
+    ForgotPasswordRequest,
+    ResetPasswordRequest
 )
 from app.services.auth_service import AuthService
 from app.utils.security import get_current_active_user, require_admin
@@ -236,4 +240,71 @@ async def delete_user(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Delete failed: {str(e)}"
+        )
+
+
+# Email Verification Routes
+@router.post("/verify-email")
+async def verify_email(request: VerifyEmailRequest):
+    """Verify user email with token"""
+    try:
+        auth_service = AuthService()
+        result = auth_service.verify_email(request.token, request.user_id)
+        return result
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Verification failed: {str(e)}"
+        )
+
+
+@router.post("/resend-verification")
+async def resend_verification(request: ResendVerificationRequest):
+    """Resend verification email"""
+    try:
+        auth_service = AuthService()
+        result = auth_service.resend_verification_email(request.email)
+        return result
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to resend verification: {str(e)}"
+        )
+
+
+@router.post("/forgot-password")
+async def forgot_password(request: ForgotPasswordRequest):
+    """Request password reset email"""
+    try:
+        auth_service = AuthService()
+        result = auth_service.request_password_reset(request.email)
+        return result
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to request password reset: {str(e)}"
+        )
+
+
+@router.post("/reset-password")
+async def reset_password(request: ResetPasswordRequest):
+    """Reset password with token"""
+    try:
+        auth_service = AuthService()
+        result = auth_service.reset_password(request.token, request.user_id, request.new_password)
+        return result
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Password reset failed: {str(e)}"
         )

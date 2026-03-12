@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from app.config import settings
 from app.database import init_db
 from app.routes import auth_routes, recipe_routes, device_routes
+from app.routes.voice_routes import router as voice_routes
 from app.middleware.device_detection import DeviceDetectionMiddleware
 
 
@@ -43,6 +44,7 @@ app.add_middleware(DeviceDetectionMiddleware)
 app.include_router(auth_routes.router)
 app.include_router(recipe_routes.router)
 app.include_router(device_routes.router)
+app.include_router(voice_routes)
 
 
 @app.get("/")

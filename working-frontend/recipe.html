@@ -8,6 +8,169 @@
     <link rel="stylesheet" href="css/pages.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .recipe-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .recipe-action-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .recipe-action-btn-cook {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+        
+        .recipe-action-btn-pdf {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .recipe-action-btn-guide {
+            background: #3498db;
+            color: white;
+        }
+        
+        .recipe-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        /* Cooking Mode Overlay */
+        .cooking-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .cooking-overlay.active {
+            display: block;
+        }
+        
+        .cooking-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border-radius: 20px;
+            color: white;
+        }
+        
+        .cooking-overlay-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .cooking-overlay-header h2 {
+            margin: 0;
+        }
+        
+        .cooking-overlay-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        
+        .cooking-overlay-progress {
+            background: rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .cooking-overlay-progress-text {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        
+        .cooking-overlay-progress-bar {
+            background: rgba(255,255,255,0.3);
+            height: 15px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .cooking-overlay-progress-fill {
+            background: white;
+            height: 100%;
+            transition: width 0.5s;
+        }
+        
+        .cooking-overlay-instruction {
+            background: rgba(255,255,255,0.15);
+            border-radius: 15px;
+            padding: 30px;
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        .cooking-overlay-commands {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .cooking-overlay-commands button {
+            background: white;
+            color: #11998e;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .cooking-overlay-commands button:hover {
+            background: #f0f0f0;
+        }
+        
+        .cooking-overlay-voice {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .cooking-overlay-voice button {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
@@ -36,6 +199,7 @@
                     <div class="dropdown-menu">
                         <a href="my-recipes.html"><i class="fas fa-book"></i> My Recipes</a>
                         <a href="profile.html"><i class="fas fa-user-circle"></i> Profile</a>
+                        <a href="admin.html"><i class="fas fa-cog"></i> Admin</a>
                         <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
                     </div>
                 </div>
@@ -46,6 +210,19 @@
     <!-- Recipe Detail -->
     <section class="recipe-detail">
         <div class="container">
+            <!-- Recipe Actions -->
+            <div class="recipe-actions">
+                <button class="recipe-action-btn recipe-action-btn-cook" onclick="startCookingMode()">
+                    <i class="fas fa-play"></i> Start Guided Cooking
+                </button>
+                <button class="recipe-action-btn recipe-action-btn-pdf" onclick="downloadRecipePDF()">
+                    <i class="fas fa-file-pdf"></i> Download PDF
+                </button>
+                <button class="recipe-action-btn recipe-action-btn-guide" onclick="downloadCookingGuide()">
+                    <i class="fas fa-book-open"></i> Cooking Guide
+                </button>
+            </div>
+            
             <div class="recipe-hero">
                 <img id="recipeImage" src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800" alt="Recipe">
                 <div class="recipe-hero-overlay">
@@ -119,6 +296,42 @@
         </div>
     </section>
 
+    <!-- Cooking Mode Overlay -->
+    <div class="cooking-overlay" id="cookingOverlay">
+        <div class="cooking-container">
+            <div class="cooking-overlay-header">
+                <h2>🍳 Guided Cooking</h2>
+                <button class="cooking-overlay-close" onclick="closeCookingOverlay()">×</button>
+            </div>
+            
+            <div class="cooking-overlay-progress">
+                <div class="cooking-overlay-progress-text">
+                    Step <span id="cookingStep">1</span> of <span id="cookingTotalSteps">5</span>
+                </div>
+                <div class="cooking-overlay-progress-bar">
+                    <div class="cooking-overlay-progress-fill" id="cookingProgressFill" style="width: 20%"></div>
+                </div>
+            </div>
+            
+            <div class="cooking-overlay-instruction" id="cookingInstruction">
+                Loading cooking instructions...
+            </div>
+            
+            <div class="cooking-overlay-commands">
+                <button onclick="cookingCommand('previous')"><i class="fas fa-backward"></i> Previous</button>
+                <button onclick="cookingCommand('repeat')"><i class="fas fa-redo"></i> Repeat</button>
+                <button onclick="cookingCommand('next')"><i class="fas fa-forward"></i> Next</button>
+                <button onclick="cookingCommand('help')"><i class="fas fa-question"></i> Help</button>
+            </div>
+            
+            <div class="cooking-overlay-voice">
+                <button onclick="toggleVoiceForCooking()">
+                    <i class="fas fa-microphone"></i> Voice Control
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -147,6 +360,120 @@
 
     <script src="js/app.js"></script>
     <script src="js/recipe.js"></script>
+    <script src="js/pdf-export.js"></script>
+    <script src="js/voice.js"></script>
+    <script>
+        let currentRecipeId = null;
+        let currentRecipeData = null;
+        let cookingSession = null;
+        let isCookingVoiceActive = false;
+        
+        // Get recipe ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        currentRecipeId = urlParams.get('id');
+        
+        // Cooking Mode Functions
+        function startCookingMode() {
+            if (!currentRecipeData || !currentRecipeData.instructions) {
+                showNotification('Recipe not loaded properly', 'error');
+                return;
+            }
+            
+            cookingSession = {
+                recipe_id: currentRecipeId,
+                current_step: 0,
+                total_steps: currentRecipeData.instructions.length,
+                recipe: currentRecipeData
+            };
+            
+            // Start guided cooking from backend
+            startGuidedCooking(currentRecipeId);
+            
+            // Show overlay
+            document.getElementById('cookingOverlay').classList.add('active');
+            
+            // Update UI
+            updateCookingUI();
+        }
+        
+        function closeCookingOverlay() {
+            document.getElementById('cookingOverlay').classList.remove('active');
+            stopSpeaking();
+            isCookingVoiceActive = false;
+        }
+        
+        function updateCookingUI() {
+            if (!cookingSession) return;
+            
+            const step = cookingSession.current_step;
+            const total = cookingSession.total_steps;
+            const instructions = cookingSession.recipe.instructions || [];
+            
+            document.getElementById('cookingStep').textContent = step + 1;
+            document.getElementById('cookingTotalSteps').textContent = total;
+            document.getElementById('cookingProgressFill').style.width = ((step + 1) / total * 100) + '%';
+            
+            if (instructions[step]) {
+                const instructionText = instructions[step].instruction || '';
+                document.getElementById('cookingInstruction').textContent = instructionText;
+            }
+        }
+        
+        function cookingCommand(command) {
+            if (!cookingSession) return;
+            
+            if (command === 'next') {
+                if (cookingSession.current_step < cookingSession.total_steps - 1) {
+                    cookingSession.current_step++;
+                    updateCookingUI();
+                } else {
+                    showNotification('You have completed all steps!', 'success');
+                    speakText('Congratulations! You have completed all the cooking steps. Enjoy your meal!');
+                }
+            } else if (command === 'previous') {
+                if (cookingSession.current_step > 0) {
+                    cookingSession.current_step--;
+                    updateCookingUI();
+                }
+            } else if (command === 'repeat') {
+                const text = document.getElementById('cookingInstruction').textContent;
+                speakText(text);
+            } else if (command === 'help') {
+                speakText(`You are on step ${cookingSession.current_step + 1} of ${cookingSession.total_steps}. Say next to continue, previous to go back, or repeat to hear the instruction again.`);
+            }
+        }
+        
+        function toggleVoiceForCooking() {
+            if (isCookingVoiceActive) {
+                isCookingVoiceActive = false;
+                showNotification('Voice control deactivated', 'info');
+            } else {
+                isCookingVoiceActive = true;
+                toggleVoiceRecording();
+                showNotification('Voice control activated - say next, previous, repeat, or help', 'success');
+            }
+        }
+        
+        // PDF Download Functions
+        function downloadRecipePDF() {
+            if (!currentRecipeId) return;
+            const title = document.getElementById('recipeTitle')?.textContent || 'recipe';
+            downloadRecipePDF(currentRecipeId, title);
+        }
+        
+        function downloadCookingGuide() {
+            if (!currentRecipeId || !cookingSession) return;
+            downloadCookingGuidePDF(currentRecipeId, cookingSession.current_step);
+        }
+        
+        // Make cooking functions global
+        window.startCookingMode = startCookingMode;
+        window.closeCookingOverlay = closeCookingOverlay;
+        window.cookingCommand = cookingCommand;
+        window.toggleVoiceForCooking = toggleVoiceForCooking;
+        window.downloadRecipePDF = downloadRecipePDF;
+        window.downloadCookingGuide = downloadCookingGuide;
+    </script>
 </body>
 </html>
 

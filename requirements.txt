@@ -13,6 +13,10 @@ python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 bcrypt==4.1.2
 
+# Email
+aiosmtplib==3.0.1
+jinja2==3.1.3
+
 # Utilities
 python-dotenv==1.0.0
 pydantic==2.5.3
@@ -21,3 +25,10 @@ httpx>=0.24.0,<0.26.0
 
 # Validation
 email-validator==2.1.0.post1
+
+# Voice AI Pipeline
+openai==1.35.0
+gtts==2.5.4
+pydub==0.25.1
+aiofiles==23.2.1
+python-dotenv==1.0.0  # Ensure exists

@@ -48,6 +48,7 @@ class UserUpdate(BaseModel):
     avatar_url: Optional[str] = None
     role: Optional[str] = None
     is_active: Optional[bool] = None
+    is_verified: Optional[bool] = None
 
 
 class UserResponse(UserBase):
@@ -55,6 +56,7 @@ class UserResponse(UserBase):
     id: str
     role: str = "user"
     is_active: bool = True
+    is_verified: bool = False
     created_at: datetime
     updated_at: Optional[datetime] = None
     
@@ -70,6 +72,7 @@ class UserProfileResponse(BaseModel):
     avatar_url: Optional[str] = None
     role: str
     is_active: bool
+    is_verified: bool = False
     created_at: datetime
     
     class Config:
@@ -80,10 +83,12 @@ class UserProfileResponse(BaseModel):
 
 class Token(BaseModel):
     """Schema for access token response"""
-    access_token: str
-    refresh_token: str
+    access_token: Optional[str] = None
+    refresh_token: Optional[str] = None
     token_type: str = "bearer"
-    expires_in: int
+    expires_in: Optional[int] = None
+    message: Optional[str] = None
+    requires_verification: Optional[bool] = False
 
 
 class TokenData(BaseModel):
@@ -96,6 +101,31 @@ class TokenData(BaseModel):
 class RefreshTokenRequest(BaseModel):
     """Schema for refresh token request"""
     refresh_token: str
+
+
+# ============== Email Verification Schemas ==============
+
+class VerifyEmailRequest(BaseModel):
+    """Schema for email verification request"""
+    token: str
+    user_id: str
+
+
+class ResendVerificationRequest(BaseModel):
+    """Schema for resend verification email request"""
+    email: EmailStr
+
+
+class ForgotPasswordRequest(BaseModel):
+    """Schema for forgot password request"""
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    """Schema for password reset request"""
+    token: str
+    user_id: str
+    new_password: str = Field(..., min_length=8, max_length=100)
 
 
 class PasswordResetRequest(BaseModel):

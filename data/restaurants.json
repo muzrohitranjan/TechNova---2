@@ -1,0 +1,49 @@
+{
+  "restaurants": [
+    {
+      "id": "1",
+      "name": "Haldiram's",
+      "location": "Delhi",
+      "cuisine": "North Indian",
+      "rating": 4.5,
+      "signature_dish": "Paneer Tikka Masala",
+      "image": "https://images.unsplash.com/photo-1579586140626-58c4ef739630?w=400"
+    },
+    {
+      "id": "2",
+      "name": "Saravana Bhavan",
+      "location": "Chennai",
+      "cuisine": "South Indian",
+      "rating": 4.4,
+      "signature_dish": "Masala Dosa",
+      "image": "https://images.unsplash.com/photo-1630383249896-424e482df921?w=400"
+    },
+    {
+      "id": "3",
+      "name": "Swati Snacks",
+      "location": "Ahmedabad",
+      "cuisine": "Gujarati",
+      "rating": 4.6,
+      "signature_dish": "Patra Ni Machhi",
+      "image": "https://images.unsplash.com/photo-1695504236952-16e6d11f6c44?w=400"
+    },
+    {
+      "id": "4",
+      "name": "Vada Pav Queen",
+      "location": "Mumbai",
+      "cuisine": "Maharashtrian",
+      "rating": 4.3,
+      "signature_dish": "Vada Pav",
+      "image": "https://images.unsplash.com/photo-1567337710282-00832b415979?w=400"
+    },
+    {
+      "id": "5",
+      "name": "Chittaranjan Mishtanna Bhandar",
+      "location": "Kolkata",
+      "cuisine": "Bengali",
+      "rating": 4.7,
+      "signature_dish": "Rosogolla",
+      "image": "https://images.unsplash.com/photo-1559305616-3f99cd43e353?w=400"
+    }
+  ]
+}

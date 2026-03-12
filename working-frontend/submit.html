@@ -8,6 +8,263 @@
     <link rel="stylesheet" href="css/pages.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Voice Recording Styles */
+        .voice-recording-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            color: white;
+        }
+        
+        .voice-recording-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .voice-recording-header h3 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .voice-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .voice-status-recording {
+            background: #e74c3c;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        .voice-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .voice-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        
+        .voice-btn-record {
+            background: white;
+            color: #667eea;
+        }
+        
+        .voice-btn-record:hover {
+            transform: scale(1.02);
+        }
+        
+        .voice-btn-record.recording {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .voice-btn-speak {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        .voice-transcript {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 15px;
+            min-height: 60px;
+            margin-bottom: 15px;
+        }
+        
+        .voice-transcript-label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        
+        .voice-transcript-text {
+            font-size: 16px;
+        }
+        
+        .voice-recipe-result {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .voice-recipe-result h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        
+        .recipe-field {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .recipe-field:last-child {
+            border-bottom: none;
+        }
+        
+        .missing-fields, .follow-up-questions {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .missing-fields h4, .follow-up-questions h4 {
+            margin-top: 0;
+            color: #856404;
+        }
+        
+        .btn-save-recipe {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+        }
+        
+        .btn-save-recipe:hover {
+            background: #219a52;
+        }
+        
+        /* Cooking Mode Styles */
+        .cooking-mode {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border-radius: 15px;
+            padding: 25px;
+            color: white;
+            display: none;
+        }
+        
+        .cooking-mode.active {
+            display: block;
+        }
+        
+        .cooking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .cooking-progress {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .progress-text {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .progress-bar {
+            background: rgba(255,255,255,0.3);
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: white;
+            height: 100%;
+            transition: width 0.3s;
+        }
+        
+        .cooking-instruction {
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            padding: 20px;
+            font-size: 18px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .cooking-commands {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .command-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .command-buttons button {
+            background: white;
+            color: #11998e;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .command-buttons button:hover {
+            background: #f0f0f0;
+        }
+        
+        .btn-end-cooking {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .voice-input {
+            text-align: center;
+        }
+        
+        .btn-voice {
+            background: white;
+            color: #11998e;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
@@ -36,6 +293,7 @@
                     <div class="dropdown-menu">
                         <a href="my-recipes.html"><i class="fas fa-book"></i> My Recipes</a>
                         <a href="profile.html"><i class="fas fa-user-circle"></i> Profile</a>
+                        <a href="admin.html"><i class="fas fa-cog"></i> Admin</a>
                         <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
                     </div>
                 </div>
@@ -50,6 +308,36 @@
                 <h1>Share Your Recipe</h1>
                 <p class="subtitle">Preserve your family's culinary heritage by sharing traditional recipes</p>
                 
+                <!-- Voice Recording Section -->
+                <div class="voice-recording-container">
+                    <div class="voice-recording-header">
+                        <h3><i class="fas fa-microphone"></i> Voice Recipe Recording</h3>
+                        <span class="voice-status" id="voiceStatus">Click to start</span>
+                    </div>
+                    
+                    <div class="voice-controls">
+                        <button class="voice-btn voice-btn-record" id="voiceRecordBtn" onclick="toggleVoiceRecording()">
+                            <i class="fas fa-microphone"></i> Start Voice
+                        </button>
+                        <button class="voice-btn voice-btn-speak" onclick="speakText('Tell me about your recipe. Include the name, ingredients, and cooking instructions.')">
+                            <i class="fas fa-volume-up"></i> Listen
+                        </button>
+                    </div>
+                    
+                    <div class="voice-transcript">
+                        <div class="voice-transcript-label">Your voice input:</div>
+                        <div class="voice-transcript-text" id="voiceTranscript">No speech detected yet...</div>
+                    </div>
+                    
+                    <div id="voiceRecipeData"></div>
+                </div>
+                
+                <!-- Cooking Mode Section -->
+                <div class="cooking-mode" id="cookingModeContainer">
+                    <!-- Populated by JavaScript -->
+                </div>
+                
+                <!-- Manual Form -->
                 <form id="submitRecipeForm">
                     <div class="form-row">
                         <div class="form-group">
@@ -172,8 +460,8 @@
         </div>
     </footer>
 
-    <!-- <div class=" Login Modal -->
-   modal" id="loginModal">
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeLoginModal()">
                 <i class="fas fa-times"></i>
@@ -232,6 +520,7 @@
 
     <script src="js/app.js"></script>
     <script src="js/submit.js"></script>
+    <script src="js/voice.js"></script>
 </body>
 </html>
 

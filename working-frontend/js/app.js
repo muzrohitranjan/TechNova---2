@@ -239,6 +239,7 @@ async function handleRegister(e) {
             body: JSON.stringify({ 
                 email, 
                 password,
+                confirm_password: password,
                 full_name: name
             })
         });
@@ -246,11 +247,17 @@ async function handleRegister(e) {
         const data = await response.json();
 
         if (response.ok) {
-            authToken = data.access_token;
-            localStorage.setItem('auth_token', authToken);
-            closeRegisterModal();
-            fetchCurrentUser();
-            showNotification('Registration successful!', 'success');
+            if (data.requires_verification) {
+                // Show verification message
+                closeRegisterModal();
+                showNotification('Registration successful! Please check your email to verify your account before logging in.', 'success');
+            } else {
+                authToken = data.access_token;
+                localStorage.setItem('auth_token', authToken);
+                closeRegisterModal();
+                fetchCurrentUser();
+                showNotification('Registration successful!', 'success');
+            }
         } else {
             showNotification(data.detail || 'Registration failed', 'error');
         }
@@ -286,6 +293,7 @@ async function loadFeaturedRecipes() {
     if (!recipesGrid) return;
 
     try {
+        // Try API first
         const deviceType = localStorage.getItem('device_type');
         const endpoint = deviceType === 'mobile' ? '/api/recipes/mobile' : '/api/recipes';
         
@@ -296,12 +304,71 @@ async function loadFeaturedRecipes() {
             const recipes = data.recipes || [];
             displayRecipes(recipesGrid, recipes);
         } else {
-            displayDemoRecipes(recipesGrid);
+            // Fallback to real restaurant data
+            loadRestaurantRecipes(recipesGrid);
         }
     } catch (error) {
         console.error('Error loading recipes:', error);
-        displayDemoRecipes(recipesGrid);
+        loadRestaurantRecipes(recipesGrid);
     }
+}
+
+async function loadRestaurantRecipes(container) {
+    try {
+        const response = await fetch('/data/restaurants.json');
+        const data = await response.json();
+        const restaurants = data.restaurants || [];
+        displayRestaurantRecipes(container, restaurants);
+    } catch (error) {
+        console.error('Error loading restaurant data:', error);
+        displayStaticRecipes(container);
+    }
+}
+
+function displayRestaurantRecipes(container, restaurants) {
+    container.innerHTML = restaurants.map(restaurant => createRestaurantCard(restaurant)).join('');
+}
+
+function createRestaurantCard(restaurant) {
+    return `
+        <div class="recipe-card restaurant-card" onclick="viewRestaurant('${restaurant.id}')">
+            <div class="recipe-image">
+                <img src="${restaurant.image}" alt="${restaurant.name}">
+                <span class="recipe-badge">${restaurant.rating}★</span>
+            </div>
+            <div class="recipe-content">
+                <h3>${restaurant.name}</h3>
+                <p>${restaurant.location} • ${restaurant.cuisine}</p>
+                <div class="recipe-meta">
+                    <span><i class="fas fa-star"></i> ${restaurant.rating}</span>
+                </div>
+                <div class="signature-dish">
+                    <i class="fas fa-utensils"></i> ${restaurant.signature_dish}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function viewRestaurant(id) {
+    window.location.href = `restaurant.html?id=${id}`;
+}
+
+function displayStaticRecipes(container) {
+    const staticRecipes = [
+        {
+            title: "Butter Chicken from Haldiram's",
+            cuisine: "North Indian",
+            image_url: "https://images.unsplash.com/photo-1579586140626-58c4ef739630?w=400"
+        },
+        {
+            title: "Masala Dosa from Saravana Bhavan",
+            cuisine: "South Indian",
+            image_url: "https://images.unsplash.com/photo-1630383249896-424e482df921?w=400"
+        }
+    ];
+    
+    container.innerHTML = staticRecipes.map(recipe => createRecipeCard(recipe)).join('');
 }
 
 // Display Recipes

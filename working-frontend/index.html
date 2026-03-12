@@ -35,7 +35,7 @@
                     <div class="dropdown-menu">
                         <a href="my-recipes.html"><i class="fas fa-book"></i> My Recipes</a>
                         <a href="profile.html"><i class="fas fa-user-circle"></i> Profile</a>
-                        <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+<a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
                     </div>
                 </div>
             </div>
@@ -44,6 +44,10 @@
 
     <!-- Hero Section -->
     <section class="hero">
+<video class="hero-video-bg" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1551632811-561732e1ce22?ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&amp;auto=format&amp;fit=crop&amp;w=2070&amp;q=80">
+            <source src="https://assets.mixkit.co/videos/preview/mixkit-portrait-of-man-cooking-in-slow-motion-39908-large.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
         <div class="hero-overlay"></div>
         <div class="hero-content">
             <h1>Discover the Richness of <span>Indian Cuisine</span></h1>
@@ -195,6 +199,40 @@
         </div>
     </section>
 
+    <!-- Voice Assistant Floating Button -->
+    <div class="voice-assistant-btn" id="voiceAssistantBtn" onclick="toggleVoicePanel()" title="Voice Assistant">
+        <i class="fas fa-microphone"></i>
+    </div>
+
+    <!-- Voice Assistant Panel -->
+    <div class="voice-panel" id="voicePanel">
+        <div class="voice-panel-header">
+            <h3><i class="fas fa-microphone"></i> Voice Assistant</h3>
+            <button class="voice-panel-close" onclick="toggleVoicePanel()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="voice-panel-content" id="voiceContent">
+            <div class="voice-status" id="voiceStatus">
+                <i class="fas fa-robot"></i>
+                <p>Hi! I'm your cooking assistant. Ask me anything about recipes!</p>
+            </div>
+            <div class="voice-logs" id="voiceLogs"></div>
+        </div>
+        <div class="voice-panel-input">
+            <input type="text" id="voiceInput" placeholder="Type a message..." onkeypress="handleVoiceInput(event)">
+            <button onclick="sendVoiceMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+        <div class="voice-controls">
+            <button class="voice-control-btn" id="startVoiceBtn" onclick="startVoiceRecognition()">
+                <i class="fas fa-microphone"></i> Start Voice
+            </button>
+            <button class="voice-control-btn" id="speakResponseBtn" onclick="speakLastResponse()">
+                <i class="fas fa-volume-up"></i> Speak
+            </button>
+        </div>
+    </div>
+
     <!-- CTA Section -->
     <section class="cta-section">
         <div class="container">
@@ -314,6 +352,7 @@
     </div>
 
     <script src="js/app.js"></script>
+    <script src="js/voice.js"></script>
 </body>
 </html>
 
